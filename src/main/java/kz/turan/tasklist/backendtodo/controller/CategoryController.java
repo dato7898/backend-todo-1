@@ -2,6 +2,7 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Category;
 import kz.turan.tasklist.backendtodo.repo.CategoryRepository;
+import kz.turan.tasklist.backendtodo.to.CategoryTo;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,5 +65,10 @@ public class CategoryController {
         } catch (EmptyResultDataAccessException ex) {
             return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
         }
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<Category>> search(@RequestBody CategoryTo categoryTo) {
+        return ResponseEntity.ok(categoryRepository.findByTitle(categoryTo.getText()));
     }
 }

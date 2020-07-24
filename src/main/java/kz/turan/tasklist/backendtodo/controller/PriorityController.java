@@ -2,6 +2,7 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Priority;
 import kz.turan.tasklist.backendtodo.repo.PriorityRepository;
+import kz.turan.tasklist.backendtodo.to.PriorityTo;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,5 +74,10 @@ public class PriorityController {
         } catch (EmptyResultDataAccessException ex) {
             return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
         }
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<Priority>> search(@RequestBody PriorityTo priorityTo) {
+        return ResponseEntity.ok(priorityRepository.findByTitle(priorityTo.getText()));
     }
 }
