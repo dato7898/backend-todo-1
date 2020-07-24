@@ -1,12 +1,15 @@
 package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Category;
+import kz.turan.tasklist.backendtodo.entity.Priority;
 import kz.turan.tasklist.backendtodo.repo.CategoryRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/category")
@@ -43,5 +46,24 @@ public class CategoryController {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(categoryRepository.save(category));
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Category> findById(@PathVariable Long id) {
+        Optional<Category> candidate = categoryRepository.findById(id);
+        if (!candidate.isPresent()) {
+            return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return ResponseEntity.ok(candidate.get());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteById(@PathVariable Long id) {
+        try {
+            categoryRepository.deleteById(id);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ex) {
+            return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 }

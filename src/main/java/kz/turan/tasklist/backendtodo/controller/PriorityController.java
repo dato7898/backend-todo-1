@@ -2,11 +2,13 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Priority;
 import kz.turan.tasklist.backendtodo.repo.PriorityRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/priority")
@@ -52,5 +54,24 @@ public class PriorityController {
             return new ResponseEntity("missed param: color", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(priorityRepository.save(priority));
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Priority> findById(@PathVariable Long id) {
+        Optional<Priority> candidate = priorityRepository.findById(id);
+        if (!candidate.isPresent()) {
+            return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return ResponseEntity.ok(candidate.get());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteById(@PathVariable Long id) {
+        try {
+            priorityRepository.deleteById(id);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ex) {
+            return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 }
