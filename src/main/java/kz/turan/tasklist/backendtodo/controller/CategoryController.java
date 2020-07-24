@@ -2,6 +2,8 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Category;
 import kz.turan.tasklist.backendtodo.repo.CategoryRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +24,24 @@ public class CategoryController {
     }
 
     @PostMapping("/add")
-    public void add(@RequestBody Category category) {
-        categoryRepository.save(category);
+    public ResponseEntity<Category> add(@RequestBody Category category) {
+        if (category.getId() != null && category.getId() != 0) {
+            return new ResponseEntity("redundant param: id MUST be null", HttpStatus.NOT_ACCEPTABLE);
+        }
+        if (category.getTitle() == null || category.getTitle().trim().length() == 0) {
+            return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return ResponseEntity.ok(categoryRepository.save(category));
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<Category> update(@RequestBody Category category) {
+        if (category.getId() == null || category.getId() < 1) {
+            return new ResponseEntity("missed param: id", HttpStatus.NOT_ACCEPTABLE);
+        }
+        if (category.getTitle() == null || category.getTitle().trim().length() == 0) {
+            return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return ResponseEntity.ok(categoryRepository.save(category));
     }
 }
