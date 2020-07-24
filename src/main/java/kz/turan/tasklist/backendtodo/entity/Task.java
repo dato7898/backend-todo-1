@@ -1,58 +1,27 @@
 package kz.turan.tasklist.backendtodo.entity;
 
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@NoArgsConstructor
 @Setter
+@Getter
 @EqualsAndHashCode
 public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private Integer completed;
     private Date date;
-    private Priority priority;
-    private Category category;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    public Long getId() {
-        return id;
-    }
-
-    @Basic
-    @Column(name = "title")
-    public String getTitle() {
-        return title;
-    }
-
-    @Basic
-    @Column(name = "completed")
-    public Integer getCompleted() {
-        return completed;
-    }
-
-    @Basic
-    @Column(name = "date")
-    public Date getDate() {
-        return date;
-    }
-
     @ManyToOne
     @JoinColumn(name = "priority_id", referencedColumnName = "id")
-    public Priority getPriority() {
-        return priority;
-    }
-
+    private Priority priority;
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    public Category getCategory() {
-        return category;
-    }
+    private Category category;
 }

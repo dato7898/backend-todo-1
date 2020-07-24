@@ -1,35 +1,18 @@
 package kz.turan.tasklist.backendtodo.entity;
 
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
-@NoArgsConstructor
 @Setter
+@Getter
 @EqualsAndHashCode
 public class Stat {
+    @Id
     private Long id;
     private Long completedTotal;
     private Long uncompletedTotal;
-
-    @Id
-    @Column(name = "id")
-    public Long getId() {
-        return id;
-    }
-
-    @Basic
-    @Column(name = "completed_total")
-    public Long getCompletedTotal() {
-        return completedTotal;
-    }
-
-    @Basic
-    @Column(name = "uncompleted_total")
-    public Long getUncompletedTotal() {
-        return uncompletedTotal;
-    }
 }
