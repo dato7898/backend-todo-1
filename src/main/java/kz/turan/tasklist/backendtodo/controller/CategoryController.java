@@ -1,7 +1,6 @@
 package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Category;
-import kz.turan.tasklist.backendtodo.entity.Priority;
 import kz.turan.tasklist.backendtodo.repo.CategoryRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -21,9 +20,9 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("/test")
-    public List<Category> test() {
-        return categoryRepository.findAll();
+    @GetMapping("/all")
+    public List<Category> findAll() {
+        return categoryRepository.findAllByOrderByTitleAsc();
     }
 
     @PostMapping("/add")
