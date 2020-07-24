@@ -2,9 +2,7 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Category;
 import kz.turan.tasklist.backendtodo.repo.CategoryRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,10 @@ public class CategoryController {
     @GetMapping("/test")
     public List<Category> test() {
         return categoryRepository.findAll();
+    }
+
+    @PostMapping("/add")
+    public void add(@RequestBody Category category) {
+        categoryRepository.save(category);
     }
 }

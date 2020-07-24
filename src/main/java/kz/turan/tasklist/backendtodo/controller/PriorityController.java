@@ -2,9 +2,7 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Priority;
 import kz.turan.tasklist.backendtodo.repo.PriorityRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,10 @@ public class PriorityController {
     @GetMapping("/test")
     public List<Priority> test() {
         return priorityRepository.findAll();
+    }
+
+    @PostMapping("/add")
+    public void add(@RequestBody Priority priority) {
+        priorityRepository.save(priority);
     }
 }
