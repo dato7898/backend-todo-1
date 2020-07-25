@@ -38,14 +38,15 @@ public class CategoryController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<Category> update(@RequestBody Category category) {
+    public ResponseEntity update(@RequestBody Category category) {
         if (category.getId() == null || category.getId() < 1) {
             return new ResponseEntity("missed param: id", HttpStatus.NOT_ACCEPTABLE);
         }
         if (category.getTitle() == null || category.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(categoryRepository.save(category));
+        categoryRepository.save(category);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
@@ -62,7 +63,8 @@ public class CategoryController {
         try {
             categoryRepository.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
-        } catch (EmptyResultDataAccessException ex) {
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
             return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
         }
     }

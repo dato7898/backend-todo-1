@@ -44,7 +44,7 @@ public class PriorityController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Priority> update(@RequestBody Priority priority) {
+    public ResponseEntity update(@RequestBody Priority priority) {
         if (priority.getId() == null || priority.getId() < 1) {
             return new ResponseEntity("missed param: id", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -54,7 +54,8 @@ public class PriorityController {
         if (priority.getColor() == null || priority.getColor().trim().length() == 0) {
             return new ResponseEntity("missed param: color", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(priorityRepository.save(priority));
+        priorityRepository.save(priority);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
@@ -71,7 +72,8 @@ public class PriorityController {
         try {
             priorityRepository.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
-        } catch (EmptyResultDataAccessException ex) {
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
             return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
         }
     }
