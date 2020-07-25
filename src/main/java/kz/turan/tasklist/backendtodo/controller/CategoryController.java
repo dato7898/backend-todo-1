@@ -1,7 +1,7 @@
 package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Category;
-import kz.turan.tasklist.backendtodo.repo.CategoryRepository;
+import kz.turan.tasklist.backendtodo.service.CategoryService;
 import kz.turan.tasklist.backendtodo.to.CategoryTo;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -9,21 +9,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/all")
     public List<Category> findAll() {
-        return categoryRepository.findAllByOrderByTitleAsc();
+        return categoryService.findAllByOrderByTitleAsc();
     }
 
     @PostMapping("/add")
@@ -34,7 +34,7 @@ public class CategoryController {
         if (category.getTitle() == null || category.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(categoryRepository.save(category));
+        return ResponseEntity.ok(categoryService.add(category));
     }
 
     @PostMapping("/update")
@@ -45,32 +45,35 @@ public class CategoryController {
         if (category.getTitle() == null || category.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
-        categoryRepository.save(category);
+        categoryService.update(category);
         return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<Category> findById(@PathVariable Long id) {
-        Optional<Category> candidate = categoryRepository.findById(id);
-        if (!candidate.isPresent()) {
-            return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
+        // можно обойтись и без try-catch, тогда будет возвращаться полная ошибка (stacktrace)
+        // здесь показан пример, как можно обрабатывать исключение и отправлять свой текст/статус
+        try {
+            return ResponseEntity.ok(categoryService.findById(id));
+        } catch (NoSuchElementException e) { // если объект не будет найден
+            e.printStackTrace();
+            return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(candidate.get());
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity deleteById(@PathVariable Long id) {
         try {
-            categoryRepository.deleteById(id);
+            categoryService.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
-            return new ResponseEntity("id="+id+" not found", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
     @PostMapping("/search")
     public ResponseEntity<List<Category>> search(@RequestBody CategoryTo categoryTo) {
-        return ResponseEntity.ok(categoryRepository.findByTitle(categoryTo.getText()));
+        return ResponseEntity.ok(categoryService.findByTitle(categoryTo.getText()));
     }
 }

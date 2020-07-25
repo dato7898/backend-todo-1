@@ -1,7 +1,7 @@
 package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Task;
-import kz.turan.tasklist.backendtodo.repo.TaskRepository;
+import kz.turan.tasklist.backendtodo.service.TaskService;
 import kz.turan.tasklist.backendtodo.to.TaskTo;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,23 +13,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/task")
 public class TaskController {
-    private final TaskRepository taskRepository; // сервис для доступа к данным (напрямую к репозиториям не обращаемся)
+    private final TaskService taskService; // сервис для доступа к данным (напрямую к репозиториям не обращаемся)
 
     // автоматическое внедрение экземпляра класса через конструктор
     // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
-    public TaskController(TaskRepository taskRepository, ConfigurableEnvironment environment) {
-        this.taskRepository = taskRepository;
+    public TaskController(TaskService taskService, ConfigurableEnvironment environment) {
+        this.taskService = taskService;
     }
 
     // получение всех данных
     @GetMapping("/all")
     public ResponseEntity<List<Task>> findAll() {
-        return ResponseEntity.ok(taskRepository.findAll());
+        return ResponseEntity.ok(taskService.findAll());
     }
 
     // добавление
@@ -44,7 +44,7 @@ public class TaskController {
         if (task.getTitle() == null || task.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(taskRepository.save(task)); // возвращаем созданный объект со сгенерированным id
+        return ResponseEntity.ok(taskService.add(task)); // возвращаем созданный объект со сгенерированным id
     }
 
     // обновление
@@ -59,7 +59,7 @@ public class TaskController {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
         // save работает как на добавление, так и на обновление
-        taskRepository.save(task);
+        taskService.update(task);
         return new ResponseEntity(HttpStatus.OK); // просто отправляем статус 200 (операция прошла успешно)
     }
 
@@ -71,7 +71,7 @@ public class TaskController {
         // можно обойтись и без try-catch, тогда будет возвращаться полная ошибка (stacktrace)
         // здесь показан пример, как можно обрабатывать исключение и отправлять свой текст/статус
         try {
-            taskRepository.deleteById(id);
+            taskService.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
@@ -82,11 +82,12 @@ public class TaskController {
     // получение объекта по id
     @GetMapping("/id/{id}")
     public ResponseEntity<Task> findById(@PathVariable Long id) {
-        Optional<Task> candidate = taskRepository.findById(id);
-        if (!candidate.isPresent()) {
+        try {
+            return ResponseEntity.ok(taskService.findById(id));
+        } catch (NoSuchElementException e) { // если объект не будет найден
+            e.printStackTrace();
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(candidate.get());
     }
 
     @PostMapping("/search")
@@ -98,7 +99,7 @@ public class TaskController {
         Sort sort = Sort.by(direction, taskTo.getSortColumn());
         // объект постраничности
         PageRequest pageRequest = PageRequest.of(taskTo.getPageNumber(), taskTo.getPageSize(), sort);
-        return ResponseEntity.ok(taskRepository.findByParams(
+        return ResponseEntity.ok(taskService.findByParams(
                 taskTo.getText(),
                 taskTo.getCompleted(),
                 taskTo.getPriorityId(),

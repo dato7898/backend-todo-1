@@ -1,7 +1,7 @@
 package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Stat;
-import kz.turan.tasklist.backendtodo.repo.StatRepository;
+import kz.turan.tasklist.backendtodo.service.StatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StatController {
 
-    private final StatRepository statRepository;
+    private final StatService statService;
     private final Long defaultId = 1L;
 
-    public StatController(StatRepository statRepository) {
-        this.statRepository = statRepository;
+    public StatController(StatService statService) {
+        this.statService = statService;
     }
 
     @GetMapping("/stat")
     public ResponseEntity<Stat> stat() {
-        return ResponseEntity.ok(statRepository.findById(defaultId).get());
+        return ResponseEntity.ok(statService.findById(defaultId));
     }
 }
