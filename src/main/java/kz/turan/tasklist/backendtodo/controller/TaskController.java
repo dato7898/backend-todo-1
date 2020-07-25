@@ -2,8 +2,12 @@ package kz.turan.tasklist.backendtodo.controller;
 
 import kz.turan.tasklist.backendtodo.entity.Task;
 import kz.turan.tasklist.backendtodo.repo.TaskRepository;
+import kz.turan.tasklist.backendtodo.to.TaskTo;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -83,5 +87,22 @@ public class TaskController {
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(candidate.get());
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<Task>> search(@RequestBody TaskTo taskTo) {
+        Sort.Direction direction = taskTo.getSortDirection() == null ||
+                taskTo.getSortDirection().trim().length() == 0 ||
+                taskTo.getSortDirection().trim().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        // объект сортировки
+        Sort sort = Sort.by(direction, taskTo.getSortColumn());
+        // объект постраничности
+        PageRequest pageRequest = PageRequest.of(taskTo.getPageNumber(), taskTo.getPageSize(), sort);
+        return ResponseEntity.ok(taskRepository.findByParams(
+                taskTo.getText(),
+                taskTo.getCompleted(),
+                taskTo.getPriorityId(),
+                taskTo.getCategoryId(),
+                pageRequest));
     }
 }
