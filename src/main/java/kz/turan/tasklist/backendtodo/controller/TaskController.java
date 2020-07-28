@@ -3,7 +3,6 @@ package kz.turan.tasklist.backendtodo.controller;
 import kz.turan.tasklist.backendtodo.entity.Task;
 import kz.turan.tasklist.backendtodo.service.TaskService;
 import kz.turan.tasklist.backendtodo.to.TaskTo;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,12 +16,13 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/task")
+@CrossOrigin(origins = "http://localhost:4200")
 public class TaskController {
     private final TaskService taskService; // сервис для доступа к данным (напрямую к репозиториям не обращаемся)
 
     // автоматическое внедрение экземпляра класса через конструктор
     // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
-    public TaskController(TaskService taskService, ConfigurableEnvironment environment) {
+    public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 

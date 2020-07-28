@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/priority")
+@CrossOrigin(origins = "http://localhost:4200")
 public class PriorityController {
 
     private final PriorityService priorityService;
